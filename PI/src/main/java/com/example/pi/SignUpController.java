@@ -8,6 +8,11 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import static constants.constants.URL;
 
 public class SignUpController {
     @FXML
@@ -18,6 +23,17 @@ public class SignUpController {
     @FXML
     protected void registrar() {
         //Connection con = DriverManager.getConnection("jdbc:mysql://iescristobaldemonroy.duckdns.org:" + PUERTO + "/" + NOMBD + "?useSSL=false", USUARIO, PASSWORD);
+        Connection con = null;
+        try {
+            con = DriverManager.getConnection(URL);
+            if (con != null) {
+                System.out.println("Conexión establecida");
+            } else {
+                System.out.println("No se ha podido establecer conexión");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         if(!txfUsuarioRegistro.getText().equals("") && !txfContrasenyaRegistro.getText().equals("")) {
             //todo comprobar que no existe ya el usuario, insertar
             System.out.println("Usuario: " + txfUsuarioRegistro.getText() + " Contraseña: " + txfContrasenyaRegistro.getText());

@@ -6,8 +6,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
+import java.sql.Connection;
 import java.io.IOException;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class SignInController {
     @FXML
@@ -17,9 +19,11 @@ public class SignInController {
 
     @FXML
     protected void registrar() {
-        //Connection con = DriverManager.getConnection("jdbc:mysql://iescristobaldemonroy.duckdns.org:" + PUERTO + "/" + NOMBD + "?useSSL=false", USUARIO, PASSWORD);
+
+            //Connection con = DriverManager.getConnection("jdbc:mysql://iescristobaldemonroy.duckdns.org:" + PUERTO + "/" + NOMBD + "?useSSL=false", USUARIO, PASSWORD);
+
         if(!txfUsuarioInicio.getText().equals("") && !txfContrasenyaInicio.getText().equals("")) {
-            //todo comprobar que no existe ya el usuario, insertar
+            //todo comprobar que existe ya el usuario, insertar
             System.out.println("Usuario: " + txfUsuarioInicio.getText() + " Contraseña: " + txfContrasenyaInicio.getText());
 
             Stage stage = (Stage) txfUsuarioInicio.getScene().getWindow();
