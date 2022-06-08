@@ -8,6 +8,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import static constants.constants.URL;
 
 public class AddController {
 
@@ -34,21 +40,35 @@ public class AddController {
             // todo hacer que el boton del alert vuelva a la ventana principal
             alert.showAndWait();
 
-            System.out.println("Nombre: " + txfNombre.getText());
-            System.out.println("Pais: " + txfPais.getText());
-            System.out.println("Ranking: " + txfRanking.getText());
-
-            Stage stage = (Stage) txfNombre.getScene().getWindow();
-            stage.close();
+            Connection con = null;
+            try {
+                con = DriverManager.getConnection(URL);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
 
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-                Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                stage.setTitle("ChampionsL");
-                stage.setScene(scene);
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
+                Statement st = con.createStatement();
+                String sql = "INSERT INTO Equipo (nombre, pais, ranking) VALUES ('" + txfNombre.getText() + "', '" + txfPais.getText() + "', '" + txfRanking.getText() + "')";
+                st.executeUpdate(sql);
+                Stage stage = (Stage) txfNombre.getScene().getWindow();
+                stage.close();
+
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
+                    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+                    stage.setTitle("ChampionsL");
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (SQLException e) {
+                Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                alert2.setTitle("Error");
+                alert2.setHeaderText("Error al insertar");
+                alert2.setContentText("No se ha podido insertar el equipo");
+                alert2.showAndWait();
             }
         }
     }

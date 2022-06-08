@@ -8,6 +8,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import static constants.constants.URL;
 
 public class RemoveController {
     @FXML
@@ -28,6 +34,61 @@ public class RemoveController {
             alert.setContentText("El equipo " + txfBorrar.getText() + " será borrado");
             alert.showAndWait();
 
+            Connection con = null;
+            try {
+                con = DriverManager.getConnection(URL);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+            try {
+                Statement st = con.createStatement();
+                String sql = "DELETE FROM Equipo WHERE nombre = '" + txfBorrar.getText() + "'";
+                st.executeUpdate(sql);
+
+                Stage stage = (Stage) txfBorrar.getScene().getWindow();
+                stage.close();
+
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
+                    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+                    stage.setTitle("ChampionsL");
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            } catch (SQLException e) {
+                Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                alert2.setTitle("Error");
+                alert2.setHeaderText("Error al borrar");
+                alert2.setContentText("El equipo no existe");
+                alert2.showAndWait();
+            }
+
+
+        }
+    }
+    public void borrarTodo(){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmación");
+        alert.setHeaderText("¿Está seguro de que quiere borrar todos los equipos?");
+        alert.setContentText("Todos los equipos serán borrados");
+        alert.showAndWait();
+
+        Connection con = null;
+        try {
+            con = DriverManager.getConnection(URL);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            Statement st = con.createStatement();
+            String sql = "DELETE FROM Equipo";
+            st.executeUpdate(sql);
+
             Stage stage = (Stage) txfBorrar.getScene().getWindow();
             stage.close();
 
@@ -40,26 +101,13 @@ public class RemoveController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-    public void borrarTodo(){
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmación");
-        alert.setHeaderText("¿Está seguro de que quiere borrar todos los equipos?");
-        alert.setContentText("Todos los equipos serán borrados");
-        alert.showAndWait();
 
-        Stage stage = (Stage) txfBorrar.getScene().getWindow();
-        stage.close();
-
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-            stage.setTitle("ChampionsL");
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            Alert alert2 = new Alert(Alert.AlertType.ERROR);
+            alert2.setTitle("Error");
+            alert2.setHeaderText("Error al borrar");
+            alert2.setContentText("El equipo no existe");
+            alert2.showAndWait();
         }
     }
 }

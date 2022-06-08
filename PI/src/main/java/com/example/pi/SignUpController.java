@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import static constants.constants.URL;
 
@@ -22,34 +23,39 @@ public class SignUpController {
 
     @FXML
     protected void registrar() {
-        //Connection con = DriverManager.getConnection("jdbc:mysql://iescristobaldemonroy.duckdns.org:" + PUERTO + "/" + NOMBD + "?useSSL=false", USUARIO, PASSWORD);
         Connection con = null;
         try {
             con = DriverManager.getConnection(URL);
-            if (con != null) {
-                System.out.println("Conexión establecida");
-            } else {
-                System.out.println("No se ha podido establecer conexión");
-            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         if(!txfUsuarioRegistro.getText().equals("") && !txfContrasenyaRegistro.getText().equals("")) {
-            //todo comprobar que no existe ya el usuario, insertar
             System.out.println("Usuario: " + txfUsuarioRegistro.getText() + " Contraseña: " + txfContrasenyaRegistro.getText());
-
-            Stage stage = (Stage) txfUsuarioRegistro.getScene().getWindow();
-            stage.close();
-
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-                Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                stage.setTitle("ChampionsL");
-                stage.setScene(scene);
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
+                Statement st = con.createStatement();
+                st.executeUpdate("INSERT INTO Usuario (nombre_usuario, contrasenya) VALUES ('" + txfUsuarioRegistro.getText() + "', '" + txfContrasenyaRegistro.getText() + "')");
+
+                Stage stage = (Stage) txfUsuarioRegistro.getScene().getWindow();
+                stage.close();
+
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
+                    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+                    stage.setTitle("ChampionsL");
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (SQLException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Error al registrar");
+                alert.setContentText("El usuario ya existe");
+                alert.showAndWait();
             }
+
+
 
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
