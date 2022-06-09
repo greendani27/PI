@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 
 import static constants.constants.URL;
 
@@ -16,11 +17,13 @@ public class RaffleController {
 
     @FXML
     Button btnCuartos;
+    Connection con = null;
+    String sql;
+    ArrayList<String> lista = new ArrayList<>();
 
     @FXML
     public void CargarFaseGrupos() {
 
-        Connection con = null;
         try {
             con = DriverManager.getConnection(URL);
         } catch (SQLException e) {
@@ -35,6 +38,7 @@ public class RaffleController {
             int numEquipos = 32;
             while (rs.next()) {
                 if(numEquipos == rs.getInt(1)){
+
                     try {
                         Stage stage = (Stage) btnCuartos.getScene().getWindow();
                         stage.close();
@@ -75,7 +79,6 @@ public class RaffleController {
     @FXML
     public void CargarOctavos() {
 
-        Connection con = null;
         try {
             con = DriverManager.getConnection(URL);
         } catch (SQLException e) {
@@ -84,7 +87,7 @@ public class RaffleController {
 
         try {
             Statement st = con.createStatement();
-            String sql = "SELECT COUNT(*) FROM Equipo";
+            sql = "SELECT COUNT(*) FROM Equipo";
             ResultSet rs = st.executeQuery(sql);
 
             int numEquipos = 16;
@@ -129,7 +132,6 @@ public class RaffleController {
     @FXML
     public void CargarCuartos() {
 
-        Connection con = null;
         try {
             con = DriverManager.getConnection(URL);
         } catch (SQLException e) {
@@ -138,7 +140,7 @@ public class RaffleController {
 
         try {
             Statement st = con.createStatement();
-            String sql = "SELECT COUNT(*) FROM Equipo";
+            sql = "SELECT COUNT(*) FROM Equipo";
             ResultSet rs = st.executeQuery(sql);
 
             int numEquipos = 8;
@@ -183,8 +185,6 @@ public class RaffleController {
 
     @FXML
     public void CargarSemis() {
-
-        Connection con = null;
         try {
             con = DriverManager.getConnection(URL);
         } catch (SQLException e) {
@@ -193,12 +193,22 @@ public class RaffleController {
 
         try {
             Statement st = con.createStatement();
-            String sql = "SELECT COUNT(*) FROM Equipo";
+            sql = "SELECT COUNT(*) FROM Equipo";
             ResultSet rs = st.executeQuery(sql);
 
             int numEquipos = 4;
             while (rs.next()) {
                 if(numEquipos == rs.getInt(1)){
+                    Statement st2 = con.createStatement();
+                    String sql2 = "SELECT * FROM Equipo";
+                    ResultSet rs2 = st2.executeQuery(sql2);
+
+                    for (int i = 0; i < numEquipos; i++) {
+                        rs2.next();
+                        lista.add(rs2.getString(1));
+                        System.out.println(lista.get(i));
+                    }
+
                     try {
                         Stage stage = (Stage) btnCuartos.getScene().getWindow();
                         stage.close();

@@ -24,8 +24,8 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
         <children>
-            <Button fx:id="btnFaseGrupos" mnemonicParsing="false" prefHeight="30.0" prefWidth="199.0" text="Fase de grupos" />
-            <Button fx:id="btnOctavos" mnemonicParsing="false" prefHeight="30.0" prefWidth="232.0" text="Octavos de final" GridPane.columnIndex="1" />
+            <Button fx:id="btnFaseGrupos" mnemonicParsing="false" onAction="#CargarFaseGrupos" prefHeight="30.0" prefWidth="199.0" text="Fase de grupos" />
+            <Button fx:id="btnOctavos" mnemonicParsing="false" onAction="#CargarOctavos" prefHeight="30.0" prefWidth="232.0" text="Octavos de final" GridPane.columnIndex="1" />
             <Button fx:id="btnCuartos" mnemonicParsing="false" onAction="#CargarCuartos" prefHeight="30.0" prefWidth="211.0" text="Cuartos de final" GridPane.rowIndex="1" />
             <Button fx:id="btnSemis" mnemonicParsing="false" onAction="#CargarSemis" prefHeight="30.0" prefWidth="198.0" text="Semifinales" GridPane.columnIndex="1" GridPane.rowIndex="1" />
         </children>
