@@ -1,21 +1,21 @@
 package com.example.pi;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static constants.constants.URL;
+import static constants.constants.cargarVentana;
+import static constants.constants.establecerConexion;
 
 public class AddController {
+
+    Connection con = establecerConexion();
 
     @FXML
     TextField txfNombre;
@@ -37,15 +37,7 @@ public class AddController {
             alert.setTitle("Confirmacion");
             alert.setHeaderText("Confirmacion");
             alert.setContentText("¿Desea añadir mas equipos?");
-            // todo hacer que el boton del alert vuelva a la ventana principal
             alert.showAndWait();
-
-            Connection con = null;
-            try {
-                con = DriverManager.getConnection(URL);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
 
             try {
                 Statement st = con.createStatement();
@@ -55,11 +47,7 @@ public class AddController {
                 stage.close();
 
                 try {
-                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-                    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                    stage.setTitle("ChampionsL");
-                    stage.setScene(scene);
-                    stage.show();
+                    cargarVentana(stage, "Main.fxml","ChampionsL");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

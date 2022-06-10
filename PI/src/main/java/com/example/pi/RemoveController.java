@@ -9,13 +9,14 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static constants.constants.URL;
+import static constants.constants.establecerConexion;
 
 public class RemoveController {
+
+    Connection con = establecerConexion();
     @FXML
     TextField txfBorrar;
 
@@ -33,13 +34,6 @@ public class RemoveController {
             alert.setHeaderText("¿Está seguro de que quiere borrar el equipo?");
             alert.setContentText("El equipo " + txfBorrar.getText() + " será borrado");
             alert.showAndWait();
-
-            Connection con = null;
-            try {
-                con = DriverManager.getConnection(URL);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
 
             try {
                 Statement st = con.createStatement();
@@ -66,8 +60,6 @@ public class RemoveController {
                 alert2.setContentText("El equipo no existe");
                 alert2.showAndWait();
             }
-
-
         }
     }
     public void borrarTodo(){
@@ -76,13 +68,6 @@ public class RemoveController {
         alert.setHeaderText("¿Está seguro de que quiere borrar todos los equipos?");
         alert.setContentText("Todos los equipos serán borrados");
         alert.showAndWait();
-
-        Connection con = null;
-        try {
-            con = DriverManager.getConnection(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
 
         try {
             Statement st = con.createStatement();

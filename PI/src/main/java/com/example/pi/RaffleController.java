@@ -1,57 +1,123 @@
 package com.example.pi;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
-import static constants.constants.URL;
+import static constants.constants.*;
 
 public class RaffleController {
 
     @FXML
     Button btnCuartos;
-    Connection con = null;
+
+    Connection con = establecerConexion();
+
     String sql;
+
     ArrayList<String> lista = new ArrayList<>();
+    ArrayList<String> eliminatoria = new ArrayList<>();
+
+    int random;
 
     @FXML
     public void CargarFaseGrupos() {
+        sorteo = "Grupos";
+        equiposMostrar.clear();
 
         try {
-            con = DriverManager.getConnection(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
+            //compruebo que el numero de equipos sea correcto
             Statement st = con.createStatement();
-            String sql = "SELECT COUNT(*) FROM Equipo";
+            sql = "SELECT COUNT(*) FROM Equipo";
             ResultSet rs = st.executeQuery(sql);
 
             int numEquipos = 32;
             while (rs.next()) {
                 if(numEquipos == rs.getInt(1)){
+                    int contadorY = 1;
+                    int contadorX = 0;
 
-                    try {
-                        Stage stage = (Stage) btnCuartos.getScene().getWindow();
-                        stage.close();
+                    GridPane gridPane = new GridPane();
+                    Statement st2 = con.createStatement();
+                    String sql2 = "SELECT * FROM Equipo";
+                    ResultSet rs2 = st2.executeQuery(sql2);
 
-                        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("FaseGrupos.fxml"));
-                        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                        stage = new Stage();
-                        stage.setTitle("Fase de grupos");
-                        stage.setScene(scene);
-                        stage.show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    //cargo los equipos en una lista
+                    for (int i = 0; i < numEquipos; i++) {
+                        rs2.next();
+                        lista.add(rs2.getString(1));
                     }
+
+                    //Creo un label para cada equipo y los añado al gridpane tras sortearlos
+                    for (int i = 0; i < numEquipos; i++) {
+
+                        random = (int) (Math.random() * lista.size());
+                        eliminatoria.add(lista.get(random));
+                        if(equiposMostrar.size() < numEquipos){
+                            equiposMostrar.add(eliminatoria.get(i));
+                        }
+                        lista.remove(random);
+
+                        Label label = new Label();
+                        label.setText(eliminatoria.get(i)+" ");
+
+                        gridPane.add(label, contadorX, contadorY);
+                        contadorX = contadorX + 2;
+                        if(contadorX > 3){
+                            contadorX = 0;
+                            contadorY++;
+                        }
+                    }
+
+                    //centro el gridpane
+                    gridPane.setAlignment(Pos.CENTER);
+                    gridPane.setHgap(10);
+                    gridPane.setVgap(10);
+                    gridPane.setPadding(new Insets(25, 25, 25, 25));
+
+                    //creo un boton para volver al menu principal
+                    Button btnVolver = new Button("Volver");
+                    btnVolver.setOnAction(event -> {
+                        try {
+                            Stage stage = (Stage) btnVolver.getScene().getWindow();
+                            stage.close();
+
+                            cargarVentana(stage, "Main.fxml","ChampionsL");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    //añado el boton al gridpane
+                    gridPane.add(btnVolver, 1, contadorY+1);
+                    GridPane.setHalignment(btnVolver, HPos.CENTER);
+                    GridPane.setValignment(btnVolver, VPos.CENTER);
+
+                    //añado un titulo al gridpane
+                    Label label = new Label();
+                    label.setText("Fase de grupos");
+                    label.setFont(new Font("Arial", 20));
+                    label.setStyle("-fx-font-weight: bold");
+                    gridPane.add(label, 1, 0);
+
+                    //por ultimo muestro la ventana
+                    mostrarResultado(btnCuartos, gridPane);
+
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
@@ -62,12 +128,7 @@ public class RaffleController {
                     Stage stage = (Stage) btnCuartos.getScene().getWindow();
                     stage.close();
 
-                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-                    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                    stage = new Stage();
-                    stage.setTitle("Inicio");
-                    stage.setScene(scene);
-                    stage.show();
+                    cargarVentana(stage, "Main.fxml","ChampionsL");
                 }
             }
         } catch (SQLException | IOException e) {
@@ -78,14 +139,11 @@ public class RaffleController {
 
     @FXML
     public void CargarOctavos() {
+        sorteo = "Octavos";
+        equiposMostrar.clear();
 
         try {
-            con = DriverManager.getConnection(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
+            //compruebo que el numero de equipos sea correcto
             Statement st = con.createStatement();
             sql = "SELECT COUNT(*) FROM Equipo";
             ResultSet rs = st.executeQuery(sql);
@@ -93,19 +151,72 @@ public class RaffleController {
             int numEquipos = 16;
             while (rs.next()) {
                 if(numEquipos == rs.getInt(1)){
-                    try {
-                        Stage stage = (Stage) btnCuartos.getScene().getWindow();
-                        stage.close();
+                    int contadorY = 1;
+                    int contadorX = 0;
 
-                        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Octavos.fxml"));
-                        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                        stage = new Stage();
-                        stage.setTitle("Octavos de final");
-                        stage.setScene(scene);
-                        stage.show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    GridPane gridPane = new GridPane();
+                    Statement st2 = con.createStatement();
+                    String sql2 = "SELECT * FROM Equipo";
+                    ResultSet rs2 = st2.executeQuery(sql2);
+
+                    //cargo los equipos en una lista
+                    for (int i = 0; i < numEquipos; i++) {
+                        rs2.next();
+                        lista.add(rs2.getString(1));
                     }
+
+                    //Creo un label para cada equipo y los añado al gridpane
+                    for (int i = 0; i < numEquipos; i++) {
+                        random = (int) (Math.random() * lista.size());
+                        eliminatoria.add(lista.get(random));
+                        if(equiposMostrar.size() < numEquipos){
+                            equiposMostrar.add(eliminatoria.get(i));
+                        }
+                        lista.remove(random);
+
+                        Label label = new Label();
+                        label.setText(eliminatoria.get(i)+" ");
+
+                        gridPane.add(label, contadorX, contadorY);
+                        contadorX = contadorX + 2;
+                        if(contadorX > 3){
+                            contadorX = 0;
+                            contadorY++;
+                        }
+                    }
+                    //centro el gridpane
+                    gridPane.setAlignment(Pos.CENTER);
+                    gridPane.setHgap(10);
+                    gridPane.setVgap(10);
+                    gridPane.setPadding(new Insets(25, 25, 25, 25));
+
+                    //creo un boton para volver al menu principal
+                    Button btnVolver = new Button("Volver");
+                    btnVolver.setOnAction(event -> {
+                        try {
+                            Stage stage = (Stage) btnVolver.getScene().getWindow();
+                            stage.close();
+
+                            cargarVentana(stage, "Main.fxml","ChampionsL");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    //añado el boton al gridpane
+                    gridPane.add(btnVolver, 1, contadorY+1);
+                    GridPane.setHalignment(btnVolver, HPos.CENTER);
+                    GridPane.setValignment(btnVolver, VPos.CENTER);
+
+                    //añado un titulo al gridpane
+                    Label label = new Label();
+                    label.setText("Octavos de final");
+                    label.setFont(new Font("Arial", 20));
+                    label.setStyle("-fx-font-weight: bold");
+                    gridPane.add(label, 1, 0);
+
+                    //por ultimo muestro la ventana
+                    mostrarResultado(btnCuartos, gridPane);
+
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
@@ -116,12 +227,7 @@ public class RaffleController {
                     Stage stage = (Stage) btnCuartos.getScene().getWindow();
                     stage.close();
 
-                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-                    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                    stage = new Stage();
-                    stage.setTitle("Inicio");
-                    stage.setScene(scene);
-                    stage.show();
+                    cargarVentana(stage, "Main.fxml","ChampionsL");
                 }
             }
         } catch (SQLException | IOException e) {
@@ -131,35 +237,85 @@ public class RaffleController {
 
     @FXML
     public void CargarCuartos() {
+        sorteo = "Cuartos";
+        equiposMostrar.clear();
 
         try {
-            con = DriverManager.getConnection(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
+            //compruebo que el numero de equipos sea correcto
             Statement st = con.createStatement();
             sql = "SELECT COUNT(*) FROM Equipo";
             ResultSet rs = st.executeQuery(sql);
 
             int numEquipos = 8;
             while (rs.next()) {
-               if(numEquipos == rs.getInt(1)){
-                   try {
-                       Stage stage = (Stage) btnCuartos.getScene().getWindow();
-                       stage.close();
+                if(numEquipos == rs.getInt(1)){
+                    int contadorY = 1;
+                    int contadorX = 0;
 
-                       FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Cuartos.fxml"));
-                       Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                       stage = new Stage();
-                       stage.setTitle("Cuartos de final");
-                       stage.setScene(scene);
-                       stage.show();
-                   } catch (IOException e) {
-                       e.printStackTrace();
-                   }
-               } else {
+                    GridPane gridPane = new GridPane();
+                    Statement st2 = con.createStatement();
+                    String sql2 = "SELECT * FROM Equipo";
+                    ResultSet rs2 = st2.executeQuery(sql2);
+
+                    //cargo los equipos en una lista
+                    for (int i = 0; i < numEquipos; i++) {
+                        rs2.next();
+                        lista.add(rs2.getString(1));
+                    }
+                    //cargo los equipos en una lista de eliminatoria ya sorteados
+                    for (int i = 0; i < numEquipos; i++) {
+                        random = (int) (Math.random() * lista.size());
+                        eliminatoria.add(lista.get(random));
+                        if(equiposMostrar.size() < numEquipos){
+                            equiposMostrar.add(eliminatoria.get(i));
+                        }
+                        lista.remove(random);
+
+                        //Creo un label para cada equipo y los añado al gridpane
+                        Label label = new Label();
+                        label.setText(eliminatoria.get(i)+" ");
+
+                        gridPane.add(label, contadorX, contadorY);
+                        contadorX = contadorX + 2;
+                        if(contadorX > 3){
+                            contadorX = 0;
+                            contadorY++;
+                        }
+                    }
+                    //centro el gridpane
+                    gridPane.setAlignment(Pos.CENTER);
+                    gridPane.setHgap(10);
+                    gridPane.setVgap(10);
+                    gridPane.setPadding(new Insets(25, 25, 25, 25));
+
+                    //creo un boton para volver al menu principal
+                    Button btnVolver = new Button("Volver");
+                    btnVolver.setOnAction(event -> {
+                        try {
+                            Stage stage = (Stage) btnVolver.getScene().getWindow();
+                            stage.close();
+
+                            cargarVentana(stage, "Main.fxml","ChampionsL");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                    gridPane.add(btnVolver, 1, contadorY+1);
+                    GridPane.setHalignment(btnVolver, HPos.CENTER);
+                    GridPane.setValignment(btnVolver, VPos.CENTER);
+
+                    //añado un titulo al gridpane
+                    Label label = new Label();
+                    label.setText("Cuartos de final");
+                    label.setFont(new Font("Arial", 20));
+                    label.setStyle("-fx-font-weight: bold");
+                    gridPane.add(label, 1, 0);
+
+                    //por ultimo muestro la ventana
+                    mostrarResultado(btnCuartos, gridPane);
+
+                } else {
                    Alert alert = new Alert(Alert.AlertType.ERROR);
                    alert.setTitle("Error");
                    alert.setHeaderText("Error al realizar el sorteo");
@@ -169,12 +325,7 @@ public class RaffleController {
                    Stage stage = (Stage) btnCuartos.getScene().getWindow();
                    stage.close();
 
-                   FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-                   Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                   stage = new Stage();
-                   stage.setTitle("Inicio");
-                   stage.setScene(scene);
-                   stage.show();
+                   cargarVentana(stage, "Main.fxml","ChampionsL");
                 }
             }
         } catch (SQLException | IOException e) {
@@ -182,16 +333,14 @@ public class RaffleController {
         }
     }
 
-
     @FXML
     public void CargarSemis() {
-        try {
-            con = DriverManager.getConnection(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        equiposMostrar.clear();
+        sorteo = "Semis";
 
         try {
+
+            //compruebo que el numero de equipos sea correcto
             Statement st = con.createStatement();
             sql = "SELECT COUNT(*) FROM Equipo";
             ResultSet rs = st.executeQuery(sql);
@@ -199,29 +348,74 @@ public class RaffleController {
             int numEquipos = 4;
             while (rs.next()) {
                 if(numEquipos == rs.getInt(1)){
+                    int contadorY = 1;
+                    int contadorX = 0;
+
+                    GridPane gridPane = new GridPane();
                     Statement st2 = con.createStatement();
                     String sql2 = "SELECT * FROM Equipo";
                     ResultSet rs2 = st2.executeQuery(sql2);
 
+                    //cargo los equipos en una lista
                     for (int i = 0; i < numEquipos; i++) {
                         rs2.next();
                         lista.add(rs2.getString(1));
-                        System.out.println(lista.get(i));
                     }
 
-                    try {
-                        Stage stage = (Stage) btnCuartos.getScene().getWindow();
-                        stage.close();
+                    //cargo los equipos en una lista de eliminatoria ya sorteados
+                    for (int i = 0; i < numEquipos; i++) {
+                        random = (int) (Math.random() * lista.size());
+                        eliminatoria.add(lista.get(random));
+                        if(equiposMostrar.size() < numEquipos){
+                            equiposMostrar.add(eliminatoria.get(i));
+                        }
+                        lista.remove(random);
 
-                        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Semis.fxml"));
-                        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                        stage = new Stage();
-                        stage.setTitle("Semifinales");
-                        stage.setScene(scene);
-                        stage.show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        //Creo un label para cada equipo y los añado al gridpane
+                        Label label = new Label();
+                        label.setText(eliminatoria.get(i)+" ");
+
+                        gridPane.add(label, contadorX, contadorY);
+                        contadorX = contadorX + 2;
+                        if(contadorX > 3){
+                            contadorX = 0;
+                            contadorY++;
+                        }
                     }
+                    //centro el gridpane
+                    gridPane.setAlignment(Pos.CENTER);
+                    gridPane.setHgap(10);
+                    gridPane.setVgap(10);
+                    gridPane.setPadding(new Insets(25, 25, 25, 25));
+
+                    //creo un boton para volver al menu principal
+                    Button btnVolver = new Button("Volver");
+                    btnVolver.setOnAction(event -> {
+                        try {
+                            Stage stage = (Stage) btnVolver.getScene().getWindow();
+                            stage.close();
+
+                            cargarVentana(stage, "Main.fxml","ChampionsL");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                    //añado el boton al gridpane
+                    gridPane.add(btnVolver, 1, contadorY+1);
+                    GridPane.setHalignment(btnVolver, HPos.CENTER);
+                    GridPane.setValignment(btnVolver, VPos.CENTER);
+
+                    //añado un titulo al gridpane
+                    Label label = new Label();
+                    label.setText("Semifinales");
+                    label.setFont(new Font("Arial", 20));
+                    label.setStyle("-fx-font-weight: bold");
+                    gridPane.add(label, 1, 0);
+
+                    //por ultimo muestro la ventana
+                    mostrarResultado(btnCuartos, gridPane);
+
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
@@ -232,16 +426,21 @@ public class RaffleController {
                     Stage stage = (Stage) btnCuartos.getScene().getWindow();
                     stage.close();
 
-                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-                    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                    stage = new Stage();
-                    stage.setTitle("Inicio");
-                    stage.setScene(scene);
-                    stage.show();
+                    cargarVentana(stage, "Main.fxml","ChampionsL");
                 }
             }
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void mostrarResultado(Button btnCuartos, GridPane gridPane) {
+        Stage stage = (Stage) btnCuartos.getScene().getWindow();
+        stage.close();
+
+        Scene scene = new Scene(gridPane, 320, 320);
+        stage.setTitle("ChampionsL");
+        stage.setScene(scene);
+        stage.show();
     }
 }

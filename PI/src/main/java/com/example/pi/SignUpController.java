@@ -1,21 +1,20 @@
 package com.example.pi;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static constants.constants.URL;
+import static constants.constants.cargarVentana;
+import static constants.constants.establecerConexion;
 
 public class SignUpController {
+    Connection con = establecerConexion();
     @FXML
     TextField txfUsuarioRegistro;
     @FXML
@@ -23,14 +22,7 @@ public class SignUpController {
 
     @FXML
     protected void registrar() {
-        Connection con = null;
-        try {
-            con = DriverManager.getConnection(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
         if(!txfUsuarioRegistro.getText().equals("") && !txfContrasenyaRegistro.getText().equals("")) {
-            System.out.println("Usuario: " + txfUsuarioRegistro.getText() + " Contraseña: " + txfContrasenyaRegistro.getText());
             try {
                 Statement st = con.createStatement();
                 st.executeUpdate("INSERT INTO Usuario (nombre_usuario, contrasenya) VALUES ('" + txfUsuarioRegistro.getText() + "', '" + txfContrasenyaRegistro.getText() + "')");
@@ -39,11 +31,7 @@ public class SignUpController {
                 stage.close();
 
                 try {
-                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main.fxml"));
-                    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-                    stage.setTitle("ChampionsL");
-                    stage.setScene(scene);
-                    stage.show();
+                    cargarVentana(stage, "Main.fxml","ChampionsL");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -54,9 +42,6 @@ public class SignUpController {
                 alert.setContentText("El usuario ya existe");
                 alert.showAndWait();
             }
-
-
-
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -71,15 +56,9 @@ public class SignUpController {
         stage.close();
 
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Sign-in.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 320, 320);
-            stage.setTitle("ChampionsL");
-            stage.setScene(scene);
-            stage.show();
+            cargarVentana(stage, "SignIn.fxml","ChampionsL");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
 }

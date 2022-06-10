@@ -7,12 +7,17 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.sql.*;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import static constants.constants.URL;
+import static constants.constants.establecerConexion;
 
 public class SignInController {
+
+    Connection con = establecerConexion();
     @FXML
     TextField txfUsuarioInicio;
     @FXML
@@ -21,12 +26,6 @@ public class SignInController {
     @FXML
     protected void registrar() {
 
-        Connection con = null;
-        try {
-            con = DriverManager.getConnection(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
         if(!txfUsuarioInicio.getText().equals("") && !txfContrasenyaInicio.getText().equals("")) {
             try {
                 PreparedStatement ps = con.prepareStatement("SELECT * FROM Usuario WHERE nombre_usuario = ? AND contrasenya = ?");
@@ -57,9 +56,6 @@ public class SignInController {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-
-
-
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
